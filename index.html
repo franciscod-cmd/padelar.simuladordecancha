@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Padelar - Configurador Oficial</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "on-tertiary-fixed-variant": "#464269",
+          "on-tertiary-fixed": "#1a163b",
+          "on-tertiary-container": "#5b577f",
+          "primary-container": "#c6e153",
+          "on-secondary-fixed": "#161e0c",
+          "surface-container-low": "#1c1b1b",
+          "on-secondary": "#2a331f",
+          "surface-container-high": "#2a2a2a",
+          "primary": "#e2fe6c",
+          "on-error": "#690005",
+          "surface-container": "#201f1f",
+          "secondary-fixed": "#dce7c9",
+          "surface": "#131313",
+          "primary-fixed": "#d3ef5f",
+          "on-secondary-container": "#b2bca0",
+          "on-primary-container": "#526300",
+          "inverse-primary": "#556500",
+          "background": "#131313",
+          "surface-dark": "#1A1A1A",
+          "secondary": "#c0caae",
+          "on-tertiary": "#2f2c51",
+          "on-error-container": "#ffdad6",
+          "outline-variant": "#454837",
+          "surface-container-highest": "#353534",
+          "inverse-on-surface": "#313030",
+          "secondary-fixed-dim": "#c0caae",
+          "surface-variant": "#353534",
+          "outline": "#90937d",
+          "on-surface-variant": "#c6c8b1",
+          "error": "#ffb4ab",
+          "on-secondary-fixed-variant": "#414a34",
+          "pure-black": "#000000",
+          "surface-tint": "#b8d246",
+          "on-primary-fixed": "#181e00",
+          "on-surface": "#e5e2e1",
+          "tertiary-container": "#d6d0ff",
+          "tertiary-fixed": "#e4dfff",
+          "primary-fixed-dim": "#b8d246",
+          "surface-bright": "#3a3939",
+          "on-primary": "#2b3400",
+          "on-primary-fixed-variant": "#3f4c00",
+          "surface-container-lowest": "#0e0e0e",
+          "court-green": "#C6E153",
+          "tertiary-fixed-dim": "#c7c1f0",
+          "secondary-container": "#434c36",
+          "surface-dim": "#131313",
+          "tertiary": "#f4efff",
+          "border-muted": "#2A2A2A",
+          "error-container": "#93000a",
+          "inverse-surface": "#e5e2e1",
+          "on-background": "#e5e2e1"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "margin-mobile": "16px",
+          "gutter": "16px",
+          "unit": "4px",
+          "margin-desktop": "32px",
+          "panel-height-bottom": "240px",
+          "panel-width-lateral": "320px"
+        },
+        "fontFamily": {
+          "button-text": [
+            "Hanken Grotesk"
+          ],
+          "headline-lg": [
+            "Hanken Grotesk"
+          ],
+          "body-md": [
+            "Hanken Grotesk"
+          ],
+          "headline-lg-mobile": [
+            "Hanken Grotesk"
+          ],
+          "label-caps": [
+            "JetBrains Mono"
+          ],
+          "headline-xl": [
+            "Hanken Grotesk"
+          ]
+        }
+      },
+    },
+  }
+</script>
+<style>
+        body { background-color: #131313; color: #e5e2e1; }
+        .layer-transition { transition: opacity 0.25s ease-in-out, filter 0.35s ease-in-out, transform 0.3s ease-out; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.25s ease-in-out; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease-out; }
+        .modal-overlay.open { opacity: 1; pointer-events: auto; }
+        .modal-content { transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+        .modal-overlay.open .modal-content { transform: translateY(0); }
+
+        /* Turf dynamic color shifts applied directly to realistic renders */
+        .turf-filter-azul {
+            filter: hue-rotate(0deg) saturate(1.15) brightness(1.02);
+        }
+        .turf-filter-verde {
+            filter: hue-rotate(240deg) saturate(1.5) brightness(1.08);
+        }
+        .turf-filter-terracota {
+            filter: hue-rotate(155deg) saturate(1.4) brightness(0.95);
+        }
+        .turf-filter-negro {
+            filter: grayscale(0.95) brightness(0.68) contrast(1.22);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md bg-background text-on-background antialiased selection:bg-court-green selection:text-black">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 md:px-margin-desktop h-16 bg-surface/95 backdrop-blur-md border-b border-border-muted">
+<div class="flex items-center gap-3">
+<button aria-label="Menú" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-variant transition-colors text-primary">
+<span class="material-symbols-outlined text-2xl">menu</span>
+</button>
+<div class="hidden sm:flex items-center gap-2 pl-1 border-l border-border-muted/80">
+<span class="text-xs font-label-caps uppercase tracking-wider text-court-green font-semibold">Studio 3D</span>
+</div>
+</div>
+<!-- Padelar Logo Blanco Oficial ajustado -->
+<div class="flex items-center justify-center">
+<img alt="Padelar" class="h-6 md:h-7 object-contain brightness-0 invert opacity-95" src="https://lh3.googleusercontent.com/aida/AEtjO1Uaqb5pnWuZUgJLNLUpATMKjeOIJLzRR-QCWoCfdA78RU7UFhbIXMYM8mqAhtsOLt5trCBznNYOTXyhpkwXm5quqRfwfeWw3Xwf15Me2mssaHoFYvQA3YxB6eaVcMLUh-NTVc9N3jsk9RlbRuP8HZHSZy3AoO2gy29dLjELzmnDF80rWH3pBcjHpLW3Z-LcGF2_Lmya80b5CNcc8hMkZXnmj_cSsR7ySQP6O__Aj5ZQ_4a5yDuBcEjPIuNpW7_dnCXiansAQ4vR4Q"/>
+</div>
+<div class="flex items-center gap-1">
+<button aria-label="Información" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-variant transition-colors text-primary" id="header-info-btn">
+<span class="material-symbols-outlined text-2xl">info</span>
+</button>
+</div>
+</header>
+<div class="flex flex-1 pt-16 relative flex-col lg:flex-row min-h-screen">
+<!-- Desktop Side Drawer -->
+<aside class="hidden lg:flex flex-col fixed left-0 top-0 h-full p-gutter w-panel-width-lateral bg-surface-container border-r border-border-muted shadow-2xl z-40 pt-24">
+<div class="flex items-center gap-2.5 mb-8 px-3">
+<span class="w-2.5 h-2.5 rounded-full bg-court-green animate-pulse"></span>
+<span class="font-headline-lg text-lg font-bold tracking-tight text-white uppercase">Configurador Pro</span>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container/80 text-court-green rounded-xl transition-colors duration-200 border border-court-green/30 font-bold text-sm" href="#">
+<span class="material-symbols-outlined text-xl" style='font-variation-settings: "FILL" 1;'>sports_tennis</span>
+<span>Configurador Oficial</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-xl transition-colors duration-200 text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-xl">layers</span>
+<span>Fichas Técnicas</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-xl transition-colors duration-200 text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-xl">contact_support</span>
+<span>Asesor Comercial</span>
+</a>
+</nav>
+<div class="mt-auto p-4 rounded-xl bg-surface-dark border border-border-muted">
+<div class="flex items-center gap-2 text-xs uppercase text-court-green font-label-caps font-bold mb-1">
+<span class="material-symbols-outlined text-sm">verified</span>
+                Homologación FIP
+            </div>
+<p class="text-xs text-on-surface-variant leading-relaxed">
+                Vidrios templados de seguridad 10/12mm, iluminación LED anti-reflejo y pintura horneada anticorrosiva.
+            </p>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col lg:flex-row lg:ml-panel-width-lateral relative w-full items-stretch min-h-screen">
+<!-- Court Visualizer Area -->
+<section class="w-full lg:w-[58%] flex-none bg-[#101010] relative flex flex-col items-center justify-center p-3 sm:p-6 z-0 min-h-[300px] sm:min-h-[360px] lg:min-h-full overflow-hidden select-none border-b lg:border-b-0 border-border-muted">
+<!-- Subtle lighting radial background for depth -->
+<div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-surface-container-high/40 via-surface-dark to-[#0c0c0c] pointer-events-none"></div>
+<div class="absolute -top-20 -right-20 w-80 h-80 bg-court-green/5 rounded-full blur-3xl pointer-events-none"></div>
+<!-- Floating Configuration Pills (Top Left) -->
+<div class="absolute top-3 left-3 sm:top-5 sm:left-5 z-20 flex flex-col gap-1.5 pointer-events-none">
+<div class="inline-flex items-center gap-2 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-court-green/40 shadow-lg">
+<span class="w-2 h-2 rounded-full bg-court-green animate-ping"></span>
+<span class="font-label-caps text-[11px] sm:text-xs text-white font-bold tracking-wider uppercase" id="badge-model-text">Classic Elite</span>
+</div>
+<div class="inline-flex items-center gap-1.5 bg-surface-container/90 backdrop-blur-md px-2.5 py-1 rounded-md border border-border-muted text-[11px] font-label-caps text-on-surface-variant w-fit">
+<span class="w-2 h-2 rounded-full bg-blue-500 shrink-0" id="badge-color-dot"></span>
+<span id="badge-color-text">Azul Torneo</span>
+<span class="text-white/30">|</span>
+<span id="badge-lighting-text">4 Módulos</span>
+</div>
+</div>
+<!-- Court Image Container -->
+<div class="relative w-full h-full max-h-[460px] sm:max-h-[560px] flex items-center justify-center p-2 z-10">
+<!-- Standard High-Resolution Image for instant indexing & crystal clear visibility -->
+<img alt="Cancha Padelar Oficial" class="w-full h-auto max-h-[440px] sm:max-h-[520px] object-contain layer-transition turf-filter-azul drop-shadow-[0_15px_30px_rgba(0,0,0,0.85)]" decoding="async" id="main-court-image" loading="eager" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsYzMOPjnse65ixnRuQVXr5Eo4tBWZGlY_Q6UgQ7bnkyUgAQpy8VR5VUHdP2I3Az1eKCxJBN8mvA6m7PmZOZQArK5PVQp1JTXQ9_VUfd_LUjxjHE5WmdnnzOKPNRduUoiUQEJfcLam7SKJCF554lWX_nX7nCULon82QWRbPTx45EBjWiCCfsXAceRmeS_X2Cle9gxirIhjFo4wIOZgBEet9MjFKYbZFdkDlr8CcLu_zt1txxe7Dhq18C0ryNzrXVjckKSKvkfjg"/>
+<!-- Lighting Glow Overlay (Reactive to selected lighting modules) -->
+<div class="absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-20 mix-blend-screen flex items-center justify-center" id="lighting-glow">
+<div class="w-3/4 h-3/4 bg-white/20 blur-[90px] rounded-full"></div>
+</div>
+</div>
+<!-- Interactive Hint -->
+<div class="absolute bottom-3 right-3 z-20 bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-border-muted text-[10px] sm:text-[11px] font-label-caps text-on-surface-variant flex items-center gap-1.5">
+<span class="material-symbols-outlined text-xs text-court-green">check_circle</span>
+<span>Vista Oficial Certificada</span>
+</div>
+</section>
+<!-- Controls & Customizer Panel -->
+<section class="w-full lg:w-[42%] flex-1 bg-surface-container-low border-t lg:border-t-0 lg:border-l border-border-muted z-20 flex flex-col justify-between">
+<div>
+<!-- Panel Header Desktop -->
+<div class="hidden lg:block p-6 pb-4 border-b border-border-muted">
+<h2 class="font-headline-lg text-2xl font-extrabold text-white tracking-tight">Personaliza tu Cancha</h2>
+<p class="font-body-md text-xs sm:text-sm text-on-surface-variant mt-0.5">Configura modelo estructural, superficie deportiva y proyecto lumínico LED.</p>
+</div>
+<!-- Tabs Navigation -->
+<div class="flex border-b border-border-muted bg-surface-container-lowest sticky top-16 lg:top-0 z-30">
+<button class="flex-1 py-3.5 sm:py-4 px-2 min-h-[48px] text-center font-label-caps text-xs sm:text-sm tracking-wider border-b-2 transition-all config-tab-btn text-primary border-primary font-bold" data-target="tab-model">
+                        MODELO
+                    </button>
+<button class="flex-1 py-3.5 sm:py-4 px-2 min-h-[48px] text-center font-label-caps text-xs sm:text-sm tracking-wider hover:text-primary transition-all config-tab-btn text-on-surface-variant border-transparent font-bold" data-target="tab-surface">
+                        CÉSPED
+                    </button>
+<button class="flex-1 py-3.5 sm:py-4 px-2 min-h-[48px] text-center font-label-caps text-xs sm:text-sm tracking-wider hover:text-primary transition-all config-tab-btn text-on-surface-variant border-transparent font-bold" data-target="tab-lighting">
+                        ILUMINACIÓN
+                    </button>
+</div>
+<!-- Content Panels -->
+<div class="p-4 sm:p-6 pb-4 overflow-y-auto max-h-[calc(100vh-290px)] lg:max-h-none">
+<!-- TAB 1: MODELO -->
+<div class="tab-content active" id="tab-model">
+<div class="flex items-center justify-between mb-3.5">
+<span class="font-label-caps text-xs uppercase tracking-wider text-on-surface-variant font-bold">Seleccionar Estructura</span>
+<span class="text-[10px] font-label-caps text-court-green bg-court-green/10 px-2 py-0.5 rounded border border-court-green/20">3 Diseños Oficiales</span>
+</div>
+<div class="flex flex-col gap-2.5">
+<!-- Classic -->
+<label class="relative flex items-center p-3.5 min-h-[58px] rounded-xl border border-border-muted bg-surface-container cursor-pointer transition-all hover:bg-surface-bright model-option group">
+<input class="sr-only" data-image="https://lh3.googleusercontent.com/aida/AEtjO1UNuP82tHVedkYm8Y9pPTUEjE9d0KcM-43zMyGn4pD6HaGHm_1QhvqUhFFCgfZgMI7kh0w0HOo9apf1v3t_hwEd2USZn0OWIdQ96mI5nPET56GwkW2e_mDDt_mCOY3dCJnPjWWS_uVH0sKqWrRqdgjLyL8I0gfWLVROXtK5Ncw1-YGP5tSozx-tXuX4j26vZsfphUOZP1Fc83jG5HXm_MwmYx6Yy6bKUxyW13u4Ce3RiyVpMQbIT0V7B_sOdVCJZY_eFI4x3qlQ9A" data-name="Classic" name="model" type="radio" value="Classic"/>
+<div class="flex-1 flex items-center justify-between">
+<div>
+<div class="font-body-md text-sm sm:text-base font-bold text-white group-hover:text-primary transition-colors flex items-center gap-2">
+                                            Classic
+                                            <span class="text-[10px] font-label-caps font-semibold text-on-surface-variant bg-surface-container-high px-2 py-0.5 rounded border border-border-muted">Robusta</span>
+</div>
+<div class="text-xs text-on-surface-variant mt-0.5">Pilar intermedio tradicional, gran resistencia para clubes intensivos.</div>
+</div>
+<span class="material-symbols-outlined text-court-green model-check opacity-0">check_circle</span>
+</div>
+</label>
+<!-- Classic Elite (DEFAULT) -->
+<label class="relative flex items-center p-3.5 min-h-[58px] rounded-xl border-2 border-court-green bg-surface-variant cursor-pointer transition-all hover:bg-surface-bright model-option group shadow-lg">
+<input checked="" class="sr-only" data-image="https://lh3.googleusercontent.com/aida/AEtjO1VzsYzMOPjnse65ixnRuQVXr5Eo4tBWZGlY_Q6UgQ7bnkyUgAQpy8VR5VUHdP2I3Az1eKCxJBN8mvA6m7PmZOZQArK5PVQp1JTXQ9_VUfd_LUjxjHE5WmdnnzOKPNRduUoiUQEJfcLam7SKJCF554lWX_nX7nCULon82QWRbPTx45EBjWiCCfsXAceRmeS_X2Cle9gxirIhjFo4wIOZgBEet9MjFKYbZFdkDlr8CcLu_zt1txxe7Dhq18C0ryNzrXVjckKSKvkfjg" data-name="Classic Elite" name="model" type="radio" value="Elite"/>
+<div class="flex-1 flex items-center justify-between">
+<div>
+<div class="font-body-md text-sm sm:text-base font-bold text-white group-hover:text-primary transition-colors flex items-center gap-2">
+                                            Classic Elite
+                                            <span class="text-[10px] font-label-caps font-bold text-black bg-court-green px-2 py-0.5 rounded">Recomendada</span>
+</div>
+<div class="text-xs text-on-surface-variant mt-0.5">Visión panorámica optimizada con pilares perimetrales reforzados.</div>
+</div>
+<span class="material-symbols-outlined text-court-green model-check">check_circle</span>
+</div>
+</label>
+<!-- Full 360° -->
+<label class="relative flex items-center p-3.5 min-h-[58px] rounded-xl border border-border-muted bg-surface-container cursor-pointer transition-all hover:bg-surface-bright model-option group">
+<input class="sr-only" data-image="https://lh3.googleusercontent.com/aida/AEtjO1XDo6DjL9nVDnGQE1ikmfb-7RVzqOshnlksd1cG9o6z46f4eMi5m2OXovrKm680CrjV4gAJfmXBbFmfXj-JlY2iGXJt4Yb20MLV95Z3rLdvRwFOPbPeJe5-nDaH9baVfRUGK-YjSEjokIlT-2UwItykDd21TT7gtG6Ezxka8DktCjZYJBCIi4SrdU3STJzc73Wllll1rJMTJSugljCDfSh-AnphVdzd6eOscLtwjmiP6g2U15Ve25Ju4H771A3LZMvgRbaffjzi3Q" data-name="Full 360°" name="model" type="radio" value="360"/>
+<div class="flex-1 flex items-center justify-between">
+<div>
+<div class="font-body-md text-sm sm:text-base font-bold text-white group-hover:text-primary transition-colors flex items-center gap-2">
+                                            Full 360°
+                                            <span class="text-[10px] font-label-caps font-semibold text-court-green bg-court-green/15 px-2 py-0.5 rounded border border-court-green/30">Panorámica Pro</span>
+</div>
+<div class="text-xs text-on-surface-variant mt-0.5">Sin pilares en fondo, máxima transparencia para televisación oficial.</div>
+</div>
+<span class="material-symbols-outlined text-court-green model-check opacity-0">check_circle</span>
+</div>
+</label>
+</div>
+<div class="mt-4 p-3 rounded-xl bg-surface-container border border-border-muted/80 flex items-start gap-2.5">
+<span class="material-symbols-outlined text-court-green text-lg shrink-0 mt-0.5">verified</span>
+<p class="text-xs text-on-surface-variant leading-relaxed">
+                                Todas las estructuras incluyen fijación por anclajes expansivos hilti y pintura anticorrosiva termocurada con protección UV.
+                            </p>
+</div>
+</div>
+<!-- TAB 2: CÉSPED -->
+<div class="tab-content" id="tab-surface">
+<div class="flex items-center justify-between mb-3.5">
+<span class="font-label-caps text-xs uppercase tracking-wider text-on-surface-variant font-bold">Color de Césped Monofilamento</span>
+<span class="text-[10px] font-label-caps text-on-surface-variant">12mm Texturado</span>
+</div>
+<div class="grid grid-cols-2 gap-2.5 mb-4">
+<!-- Azul Torneo -->
+<button class="flex items-center gap-3 p-3 rounded-xl border-2 border-court-green bg-surface-variant color-card transition-all cursor-pointer text-left" data-color="Azul Torneo" data-dot="bg-blue-500" data-filter="turf-filter-azul" type="button">
+<span class="w-8 h-8 rounded-full bg-blue-600 ring-2 ring-court-green flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs color-check">check</span>
+</span>
+<div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Azul Torneo</div>
+<div class="text-[10px] text-on-surface-variant">Oficial World Tour</div>
+</div>
+</button>
+<!-- Verde Master -->
+<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright color-card transition-all cursor-pointer text-left" data-color="Verde Master" data-dot="bg-green-500" data-filter="turf-filter-verde" type="button">
+<span class="w-8 h-8 rounded-full bg-emerald-600 ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs color-check opacity-0">check</span>
+</span>
+<div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Verde Master</div>
+<div class="text-[10px] text-on-surface-variant">Clásico &amp; Club</div>
+</div>
+</button>
+<!-- Terracota -->
+<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright color-card transition-all cursor-pointer text-left" data-color="Terracota" data-dot="bg-amber-700" data-filter="turf-filter-terracota" type="button">
+<span class="w-8 h-8 rounded-full bg-red-700 ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs color-check opacity-0">check</span>
+</span>
+<div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Terracota</div>
+<div class="text-[10px] text-on-surface-variant">Look Tierra Batida</div>
+</div>
+</button>
+<!-- Negro Eclipse -->
+<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright color-card transition-all cursor-pointer text-left" data-color="Negro Eclipse" data-dot="bg-zinc-700" data-filter="turf-filter-negro" type="button">
+<span class="w-8 h-8 rounded-full bg-zinc-900 border border-outline ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs color-check opacity-0">check</span>
+</span>
+<div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Negro Eclipse</div>
+<div class="text-[10px] text-on-surface-variant">Edición Premium Dark</div>
+</div>
+</button>
+</div>
+<div class="p-3 rounded-xl bg-surface-container border border-border-muted text-xs text-on-surface-variant">
+<span class="font-bold text-white">Fibras monofilamento texturadas:</span> Alta resistencia al desgaste y menor deslizamiento indeseado con arena de sílice calibrada 0.2-0.6mm.
+                        </div>
+</div>
+<!-- TAB 3: ILUMINACIÓN -->
+<div class="tab-content" id="tab-lighting">
+<div class="flex items-center justify-between mb-3.5">
+<span class="font-label-caps text-xs uppercase tracking-wider text-on-surface-variant font-bold">Proyectores LED Homologados</span>
+<span class="text-[10px] font-label-caps text-court-green">Lentes Anti-Deslumbramiento</span>
+</div>
+<div class="flex flex-col gap-2.5">
+<!-- 4 Módulos (DEFAULT) -->
+<label class="flex items-center justify-between p-3 min-h-[58px] border-2 border-court-green bg-surface-variant rounded-xl cursor-pointer transition-all lighting-option group shadow-lg">
+<input checked="" class="sr-only" data-name="4 Módulos (210W)" name="lighting" type="radio" value="4"/>
+<div class="flex items-center gap-3">
+<img alt="4 Módulos LED" class="w-16 h-10 object-contain bg-surface-dark p-1 rounded-md border border-border-muted" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARJgiG19EUk0ens8vNgaHhMZKGUj0k3UYOckxyno-uzqhIrm6Mzgj_6PQ4hRMrLqWig_DkIGnBwxccEwbb2TCRfbx_kpd57PMSI9Ld0cvxZcCfmAnJ8wg8um6AlURQdQdcv7RClAjCBd7008p2N4n0zHeWe5g2Vea7_bIa2mXEQI9oOZkmm_qOT1zSksTOuOunhawpKb4_42po9LOC_CsX68bTQqZsYoWvcTdVfAFws4n9t7XoeRDVEXAu8Kaybj-qJg"/>
+<div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+                                            4 Módulos LED
+                                            <span class="text-[10px] font-label-caps bg-court-green/20 text-court-green px-1.5 py-0.5 rounded">Estándar Club</span>
+</div>
+<div class="text-[11px] text-on-surface-variant mt-0.5">210W | 35.406 lm | Uso recreativo diurno/nocturno</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-court-green lighting-check">check_circle</span>
+</label>
+<!-- 6 Módulos -->
+<label class="flex items-center justify-between p-3 min-h-[58px] border border-border-muted bg-surface-container rounded-xl cursor-pointer transition-all lighting-option hover:bg-surface-bright group">
+<input class="sr-only" data-name="6 Módulos (315W)" name="lighting" type="radio" value="6"/>
+<div class="flex items-center gap-3">
+<img alt="6 Módulos LED" class="w-16 h-10 object-contain bg-surface-dark p-1 rounded-md border border-border-muted" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqI7LHH5ejimQsuMzt-OnHiS_-s3CyBmcQ5tt5HdFwrwPxGntILaW730q-KuNENPwtfYlHyqtxx375E0MM2XxjnO9p5sgmxPxn_HFprIJzg4ymLmsZz98a8iTWubR95zEDXi6F1kGNiQ5MoVqNowjKEhNK35Xq4K9LSZ9uL6sEztFnGTqB3A4ojfJhtmQ2RT9wi739Zo_zvBE4OUkx_bhQSnNbXTgaEg0S29elp4_uo-z7292J0-FWgWDmU7wnXaOrpg"/>
+<div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+                                            6 Módulos LED
+                                            <span class="text-[10px] font-label-caps bg-surface-bright text-white px-1.5 py-0.5 rounded">Semi-Pro</span>
+</div>
+<div class="text-[11px] text-on-surface-variant mt-0.5">315W | 53.109 lm | Uniformidad lumínica superior</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-court-green lighting-check opacity-0">check_circle</span>
+</label>
+<!-- 8 Módulos -->
+<label class="flex items-center justify-between p-3 min-h-[58px] border border-border-muted bg-surface-container rounded-xl cursor-pointer transition-all lighting-option hover:bg-surface-bright group">
+<input class="sr-only" data-name="8 Módulos (420W)" name="lighting" type="radio" value="8"/>
+<div class="flex items-center gap-3">
+<img alt="8 Módulos LED" class="w-16 h-10 object-contain bg-surface-dark p-1 rounded-md border border-border-muted" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJhZOh_Aukm5jf4kCX_IehMib5V47nwR8m1N_QW73nD_YitpR_jSWYoQH3WgRw5m1TI3Rcretut5AqXZxRPaKn9g6Q5BgNEqX8uT6tYGhCgULu2VMR9NjCfdWivoG_5HyL84YXB776kEGbIslKUiMmfrXcaH3lc6atH44Pw4ACANBF39n4R6XH6W18P86qRRF1JqE-4e9X_TMPJEWFKMQIMF88p3wHu_Pzp9x4_dzksN8D1cxpz2TlHJrNKn46mbXArw"/>
+<div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white flex items-center gap-1.5">
+                                            8 Módulos LED
+                                            <span class="text-[10px] font-label-caps bg-court-green text-black font-bold px-1.5 py-0.5 rounded">Torneo / TV</span>
+</div>
+<div class="text-[11px] text-on-surface-variant mt-0.5">420W | 70.812 lm | Homologada para transmisión HD</div>
+</div>
+</div>
+<span class="material-symbols-outlined text-court-green lighting-check opacity-0">check_circle</span>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Actions Bar -->
+<div class="p-4 sm:p-6 border-t border-border-muted bg-surface-container-low sticky bottom-0 z-40 space-y-2.5">
+<button class="w-full py-3 px-4 min-h-[44px] rounded-xl bg-surface-container border border-border-muted text-white font-button-text text-sm hover:bg-surface-bright transition-colors flex items-center justify-center gap-2 cursor-pointer font-bold" id="btn-details" type="button">
+<span class="material-symbols-outlined text-lg text-court-green">description</span>
+                    Ver Ficha Técnica
+                </button>
+<!-- WhatsApp Quote CTA in Lima Green -->
+<button class="w-full py-3.5 px-4 min-h-[48px] rounded-xl bg-court-green text-black font-button-text text-base font-extrabold hover:brightness-105 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(198,225,83,0.35)] flex items-center justify-center gap-2 cursor-pointer" id="btn-quote" type="button">
+<span class="material-symbols-outlined text-xl">chat</span>
+                    Solicitar Presupuesto Oficial
+                </button>
+</div>
+</section>
+</main>
+</div>
+<!-- Modal Ficha Técnica -->
+<div class="fixed inset-0 z-[100] modal-overlay flex items-end sm:items-center justify-center p-0 sm:p-4" id="details-modal">
+<div class="absolute inset-0 bg-black/80 backdrop-blur-sm modal-backdrop"></div>
+<div class="relative w-full sm:max-w-lg bg-surface-container-highest rounded-t-2xl sm:rounded-2xl shadow-2xl modal-content max-h-[85vh] flex flex-col border border-border-muted overflow-hidden">
+<div class="p-4 sm:p-5 border-b border-border-muted flex justify-between items-center bg-surface-container">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-court-green">verified_user</span>
+<h3 class="font-headline-lg-mobile text-base sm:text-lg font-bold text-white" id="modal-title">Ficha Técnica Oficial</h3>
+</div>
+<button class="modal-close w-9 h-9 rounded-lg hover:bg-surface-variant flex items-center justify-center text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+</div>
+<div class="p-5 overflow-y-auto space-y-4">
+<div class="p-3.5 bg-surface-dark rounded-xl border border-border-muted">
+<p class="text-xs sm:text-sm text-on-surface-variant leading-relaxed" id="modal-desc">
+                    Estructura certificada según normativas de la Federación Internacional de Pádel.
+                </p>
+</div>
+<div>
+<h4 class="text-xs font-label-caps uppercase text-court-green font-bold mb-2.5">Detalles Constructivos</h4>
+<ul class="space-y-2 text-xs text-on-surface-variant" id="modal-features">
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-court-green">check</span> Acero estructural galvanizado en caliente con recubrimiento en polvo termoendurecible.</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-court-green">check</span> Vidrio templado de seguridad homologado de 10mm o 12mm de espesor.</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-court-green">check</span> Césped monofilamento texturado de 12mm con arena de sílice calibrada.</li>
+<li class="flex items-center gap-2"><span class="material-symbols-outlined text-sm text-court-green">check</span> Malla electro-soldada de alta resistencia sin salientes antilesión.</li>
+</ul>
+</div>
+</div>
+<div class="p-4 border-t border-border-muted bg-surface-container flex justify-end">
+<button class="modal-close px-5 py-2.5 rounded-lg bg-court-green text-black font-button-text font-bold text-sm hover:brightness-110 transition-colors">
+                Cerrar
+            </button>
+</div>
+</div>
+</div>
+<script>
+    // State
+    const state = {
+        model: 'Classic Elite',
+        modelKey: 'Elite',
+        turf: 'Azul Torneo',
+        turfFilter: 'turf-filter-azul',
+        turfDot: 'bg-blue-500',
+        lighting: '4 Módulos (210W)',
+        lightingModules: 4
+    };
+
+    const modalData = {
+        'Classic': {
+            title: 'Padelar Classic - Ficha Técnica',
+            desc: 'Estructura robusta de postes continuos reforzados. Ideal para clubes deportivos con gran afluencia y uso continuo, máxima rigidez estructural garantizada.',
+            features: [
+                'Postes de acero estructural 80x80x2mm con anclaje a platea.',
+                'Vidrio templado de 10mm fijado con juntas de neopreno y tornillería de acero inoxidable.',
+                'Malla electrosoldada 50x50x4 antilesión empotrada en marco tubular.',
+                'Tratamiento anticorrosivo previo al termoesmaltado horneado.'
+            ]
+        },
+        'Elite': {
+            title: 'Padelar Classic Elite - Ficha Técnica',
+            desc: 'El equilibrio óptimo entre robustez tradicional y campo visual ampliado. Con estructura perimetral optimizada para una visión despejada desde cualquier ángulo exterior.',
+            features: [
+                'Pilares perimetrales reforzados que despejan la visual del juego.',
+                'Cristal templado premium de 12mm con cantos pulidos y absorción sísmica.',
+                'Césped monofilamento texturado de 12mm de alta densidad 55.000 puntadas/m2.',
+                'Brazos de luminarias curvados aerodinámicos con cero deslumbramiento aéreo.'
+            ]
+        },
+        '360': {
+            title: 'Padelar Full 360° - Ficha Técnica',
+            desc: 'La ingeniería panorámica más avanzada del mercado. Diseñada sin pilares traseros ni esquineros para brindar una visibilidad total para televidentes y público VIP.',
+            features: [
+                'Diseño autoportante 100% panorámico sin tubos en fondos ni esquinas.',
+                'Vidrio templado templado/laminado de seguridad de 12mm certificado UNE-EN 12150.',
+                'Cumplimiento estricto con el reglamento de la Federación Internacional de Pádel (FIP).',
+                'Estructura preparada para módulos lumínicos LED de televisación internacional 4K.'
+            ]
+        }
+    };
+
+    // DOM Elements
+    const mainCourtImage = document.getElementById('main-court-image');
+    const badgeModelText = document.getElementById('badge-model-text');
+    const badgeColorText = document.getElementById('badge-color-text');
+    const badgeColorDot = document.getElementById('badge-color-dot');
+    const badgeLightingText = document.getElementById('badge-lighting-text');
+    const lightingGlow = document.getElementById('lighting-glow');
+
+    // Tab switching
+    const tabBtns = document.querySelectorAll('.config-tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => {
+                b.classList.remove('text-primary', 'border-primary');
+                b.classList.add('text-on-surface-variant', 'border-transparent');
+            });
+            btn.classList.remove('text-on-surface-variant', 'border-transparent');
+            btn.classList.add('text-primary', 'border-primary');
+
+            tabContents.forEach(content => content.classList.remove('active'));
+            document.getElementById(btn.dataset.target).classList.add('active');
+        });
+    });
+
+    // Model selection
+    const modelRadios = document.querySelectorAll('input[name="model"]');
+    modelRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const val = e.target.value;
+            const name = e.target.dataset.name;
+            const imgSrc = e.target.dataset.image;
+
+            state.modelKey = val;
+            state.model = name;
+
+            // UI feedback
+            document.querySelectorAll('.model-option').forEach(opt => {
+                opt.classList.remove('border-2', 'border-court-green', 'bg-surface-variant', 'shadow-lg');
+                opt.classList.add('border-border-muted', 'bg-surface-container');
+                const check = opt.querySelector('.model-check');
+                if (check) check.classList.add('opacity-0');
+            });
+
+            const parent = e.target.closest('.model-option');
+            parent.classList.remove('border-border-muted', 'bg-surface-container');
+            parent.classList.add('border-2', 'border-court-green', 'bg-surface-variant', 'shadow-lg');
+            const check = parent.querySelector('.model-check');
+            if (check) check.classList.remove('opacity-0');
+
+            // Instant image update
+            mainCourtImage.style.opacity = '0.5';
+            mainCourtImage.src = imgSrc;
+            mainCourtImage.onload = () => {
+                mainCourtImage.style.opacity = '1';
+            };
+
+            badgeModelText.textContent = name;
+        });
+    });
+
+    // Turf color selection
+    const colorCards = document.querySelectorAll('.color-card');
+    colorCards.forEach(card => {
+        card.addEventListener('click', () => {
+            colorCards.forEach(c => {
+                c.classList.remove('border-2', 'border-court-green', 'bg-surface-variant', 'shadow-lg');
+                c.classList.add('border-border-muted', 'bg-surface-container');
+                const ring = c.querySelector('span');
+                if (ring) {
+                    ring.classList.remove('ring-court-green');
+                    ring.classList.add('ring-transparent');
+                }
+                const chk = c.querySelector('.color-check');
+                if (chk) chk.classList.add('opacity-0');
+            });
+
+            card.classList.remove('border-border-muted', 'bg-surface-container');
+            card.classList.add('border-2', 'border-court-green', 'bg-surface-variant', 'shadow-lg');
+            const ring = card.querySelector('span');
+            if (ring) {
+                ring.classList.remove('ring-transparent');
+                ring.classList.add('ring-court-green');
+            }
+            const chk = card.querySelector('.color-check');
+            if (chk) chk.classList.remove('opacity-0');
+
+            state.turf = card.dataset.color;
+            state.turfFilter = card.dataset.filter;
+            state.turfDot = card.dataset.dot;
+
+            // Remove existing turf filter classes and add selected
+            mainCourtImage.className = mainCourtImage.className
+                .replace(/turf-filter-[a-z0-9-]+/g, '')
+                .trim() + ' ' + state.turfFilter;
+
+            badgeColorText.textContent = state.turf;
+            badgeColorDot.className = `w-2 h-2 rounded-full ${state.turfDot} shrink-0`;
+        });
+    });
+
+    // Lighting selection
+    const lightingRadios = document.querySelectorAll('input[name="lighting"]');
+    lightingRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            state.lighting = e.target.dataset.name;
+            state.lightingModules = parseInt(e.target.value, 10);
+
+            document.querySelectorAll('.lighting-option').forEach(opt => {
+                opt.classList.remove('border-2', 'border-court-green', 'bg-surface-variant', 'shadow-lg');
+                opt.classList.add('border-border-muted', 'bg-surface-container');
+                const chk = opt.querySelector('.lighting-check');
+                if (chk) chk.classList.add('opacity-0');
+            });
+
+            const parent = e.target.closest('.lighting-option');
+            parent.classList.remove('border-border-muted', 'bg-surface-container');
+            parent.classList.add('border-2', 'border-court-green', 'bg-surface-variant', 'shadow-lg');
+            const chk = parent.querySelector('.lighting-check');
+            if (chk) chk.classList.remove('opacity-0');
+
+            badgeLightingText.textContent = `${state.lightingModules} Módulos`;
+
+            // Adjust subtle glow
+            const opacity = state.lightingModules === 4 ? '0.2' : (state.lightingModules === 6 ? '0.4' : '0.65');
+            lightingGlow.style.opacity = opacity;
+        });
+    });
+
+    // Modal logic
+    const modal = document.getElementById('details-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDesc = document.getElementById('modal-desc');
+    const modalFeatures = document.getElementById('modal-features');
+
+    function openModal() {
+        const data = modalData[state.modelKey] || modalData['Elite'];
+        modalTitle.textContent = data.title;
+        modalDesc.textContent = data.desc;
+        modalFeatures.innerHTML = data.features.map(feat => `
+            <li class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-sm text-court-green shrink-0">check</span>
+                <span>${feat}</span>
+            </li>
+        `).join('');
+        modal.classList.add('open');
+    }
+
+    document.getElementById('btn-details').addEventListener('click', openModal);
+    document.getElementById('header-info-btn').addEventListener('click', openModal);
+
+    document.querySelectorAll('.modal-close, .modal-backdrop').forEach(el => {
+        el.addEventListener('click', () => {
+            modal.classList.remove('open');
+        });
+    });
+
+    // WhatsApp redirection with full configuration breakdown
+    document.getElementById('btn-quote').addEventListener('click', () => {
+        const phone = "5493471209000";
+        const message = `Hola Padelar, quisiera solicitar un presupuesto oficial para una cancha con la siguiente configuración:\n\n` +
+                        `• Modelo: ${state.model}\n` +
+                        `• Césped: ${state.turf} (12mm Monofilamento Texturado)\n` +
+                        `• Iluminación: ${state.lighting}\n\n` +
+                        `Agradezco me puedan contactar con cotización y plazos de entrega.`;
+        const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+        window.open(url, '_blank');
+    });
+</script>
+</body></html>
