@@ -103,7 +103,7 @@
   }
 </script>
 <style>
-        body { background-color: #131313; color: #e5e2e1; }
+        body { background-color: #131313; color: #e5e2e1; min-height: 100dvh; }
         .layer-transition { transition: opacity 0.25s ease-in-out, filter 0.35s ease-in-out, transform 0.3s ease-out; }
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.25s ease-in-out; }
@@ -129,22 +129,92 @@
         .turf-filter-negro {
             filter: grayscale(0.95) brightness(0.68) contrast(1.22);
         }
+        .court-stage { isolation: isolate; }
+        .court-stage::after {
+            content: "";
+            position: absolute;
+            inset: 12% 8% 8%;
+            z-index: -1;
+            background: radial-gradient(ellipse at center, rgba(198, 225, 83, 0.12), transparent 64%);
+            filter: blur(24px);
+        }
+        .court-reference-label {
+            background: rgba(12, 12, 12, 0.76);
+            backdrop-filter: blur(10px);
+        }
+        .court-3d-shell {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .court-3d-card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 24px 36px rgba(0, 0, 0, 0.5));
+        }
+        .court-3d-card > img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 280ms ease;
+            pointer-events: none;
+            z-index: 1;
+        }
+        #court-3d-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 300ms ease;
+            touch-action: none;
+            cursor: grab;
+            pointer-events: auto;
+            z-index: 2;
+        }
+        #court-3d-canvas:active { cursor: grabbing; }
+        .court-3d-card.webgl-ready:not(.reference-mode) #court-3d-canvas { opacity: 1; }
+        .court-3d-card.webgl-ready:not(.reference-mode) > img { opacity: 0 !important; }
+        .court-3d-card.reference-mode #court-3d-canvas { opacity: 0; pointer-events: none; }
+        .court-3d-card.reference-mode > img { opacity: 1 !important; }
+        .court-3d-card.webgl-ready .turf-tint { opacity: 0 !important; }
+        }
+        .turf-tint {
+            position: absolute;
+            inset: 0;
+            clip-path: polygon(27.5% 22.5%, 67% 22.5%, 80.8% 77.8%, 13.2% 77.8%);
+            pointer-events: none;
+            opacity: 0;
+            mix-blend-mode: hue;
+            transition: background-color 300ms ease, opacity 300ms ease;
+            transform: translateZ(2px);
+        }
+        .court-3d-card.reference-mode .turf-tint { opacity: 0 !important; }
+        @media (max-width: 1023px) {
+            .mobile-court-stage { height: min(43svh, 430px); min-height: 300px; }
+        }
+        @media (min-width: 1024px) {
+            .desktop-shell { height: calc(100dvh - 4rem); min-height: 640px; }
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col font-body-md bg-background text-on-background antialiased selection:bg-court-green selection:text-black">
 <!-- TopAppBar -->
 <header class="fixed top-0 w-full z-50 flex justify-between items-center px-4 md:px-margin-desktop h-16 bg-surface/95 backdrop-blur-md border-b border-border-muted">
 <div class="flex items-center gap-3">
-<button aria-label="Menú" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-variant transition-colors text-primary">
-<span class="material-symbols-outlined text-2xl">menu</span>
-</button>
-<div class="hidden sm:flex items-center gap-2 pl-1 border-l border-border-muted/80">
-<span class="text-xs font-label-caps uppercase tracking-wider text-court-green font-semibold">Studio 3D</span>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-court-green"></span>
+<span class="text-[10px] sm:text-xs font-label-caps uppercase tracking-wider text-on-surface-variant font-semibold">Configurador</span>
 </div>
 </div>
-<!-- Padelar Logo Blanco Oficial ajustado -->
+<!-- Padelar Logo Oficial -->
 <div class="flex items-center justify-center">
-<img alt="Padelar" class="h-6 md:h-7 object-contain brightness-0 invert opacity-95" src="https://lh3.googleusercontent.com/aida/AEtjO1Uaqb5pnWuZUgJLNLUpATMKjeOIJLzRR-QCWoCfdA78RU7UFhbIXMYM8mqAhtsOLt5trCBznNYOTXyhpkwXm5quqRfwfeWw3Xwf15Me2mssaHoFYvQA3YxB6eaVcMLUh-NTVc9N3jsk9RlbRuP8HZHSZy3AoO2gy29dLjELzmnDF80rWH3pBcjHpLW3Z-LcGF2_Lmya80b5CNcc8hMkZXnmj_cSsR7ySQP6O__Aj5ZQ_4a5yDuBcEjPIuNpW7_dnCXiansAQ4vR4Q"/>
+<img alt="Padelar" class="w-32 sm:w-40 h-auto object-contain" src="padelar-logo-header.png"/>
 </div>
 <div class="flex items-center gap-1">
 <button aria-label="Información" class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-surface-variant transition-colors text-primary" id="header-info-btn">
@@ -153,40 +223,10 @@
 </div>
 </header>
 <div class="flex flex-1 pt-16 relative flex-col lg:flex-row min-h-screen">
-<!-- Desktop Side Drawer -->
-<aside class="hidden lg:flex flex-col fixed left-0 top-0 h-full p-gutter w-panel-width-lateral bg-surface-container border-r border-border-muted shadow-2xl z-40 pt-24">
-<div class="flex items-center gap-2.5 mb-8 px-3">
-<span class="w-2.5 h-2.5 rounded-full bg-court-green animate-pulse"></span>
-<span class="font-headline-lg text-lg font-bold tracking-tight text-white uppercase">Configurador Pro</span>
-</div>
-<nav class="flex flex-col gap-2">
-<a class="flex items-center gap-3 px-4 py-3 bg-secondary-container/80 text-court-green rounded-xl transition-colors duration-200 border border-court-green/30 font-bold text-sm" href="#">
-<span class="material-symbols-outlined text-xl" style='font-variation-settings: "FILL" 1;'>sports_tennis</span>
-<span>Configurador Oficial</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-xl transition-colors duration-200 text-sm font-medium" href="#">
-<span class="material-symbols-outlined text-xl">layers</span>
-<span>Fichas Técnicas</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-variant rounded-xl transition-colors duration-200 text-sm font-medium" href="#">
-<span class="material-symbols-outlined text-xl">contact_support</span>
-<span>Asesor Comercial</span>
-</a>
-</nav>
-<div class="mt-auto p-4 rounded-xl bg-surface-dark border border-border-muted">
-<div class="flex items-center gap-2 text-xs uppercase text-court-green font-label-caps font-bold mb-1">
-<span class="material-symbols-outlined text-sm">verified</span>
-                Homologación FIP
-            </div>
-<p class="text-xs text-on-surface-variant leading-relaxed">
-                Vidrios templados de seguridad 10/12mm, iluminación LED anti-reflejo y pintura horneada anticorrosiva.
-            </p>
-</div>
-</aside>
 <!-- Main Content Area -->
-<main class="flex-1 flex flex-col lg:flex-row lg:ml-panel-width-lateral relative w-full items-stretch min-h-screen">
+<main class="desktop-shell flex-1 flex flex-col lg:flex-row relative w-full items-stretch min-h-screen">
 <!-- Court Visualizer Area -->
-<section class="w-full lg:w-[58%] flex-none bg-[#101010] relative flex flex-col items-center justify-center p-3 sm:p-6 z-0 min-h-[300px] sm:min-h-[360px] lg:min-h-full overflow-hidden select-none border-b lg:border-b-0 border-border-muted">
+<section class="mobile-court-stage w-full lg:w-[64%] flex-none bg-[#101010] relative flex flex-col items-center justify-center p-3 sm:p-6 z-0 min-h-[300px] sm:min-h-[360px] lg:min-h-full overflow-hidden select-none border-b lg:border-b-0 border-border-muted">
 <!-- Subtle lighting radial background for depth -->
 <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-surface-container-high/40 via-surface-dark to-[#0c0c0c] pointer-events-none"></div>
 <div class="absolute -top-20 -right-20 w-80 h-80 bg-court-green/5 rounded-full blur-3xl pointer-events-none"></div>
@@ -194,7 +234,7 @@
 <div class="absolute top-3 left-3 sm:top-5 sm:left-5 z-20 flex flex-col gap-1.5 pointer-events-none">
 <div class="inline-flex items-center gap-2 bg-black/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-court-green/40 shadow-lg">
 <span class="w-2 h-2 rounded-full bg-court-green animate-ping"></span>
-<span class="font-label-caps text-[11px] sm:text-xs text-white font-bold tracking-wider uppercase" id="badge-model-text">Classic Elite</span>
+<span class="font-label-caps text-[11px] sm:text-xs text-white font-bold tracking-wider uppercase" id="badge-model-text">Classic</span>
 </div>
 <div class="inline-flex items-center gap-1.5 bg-surface-container/90 backdrop-blur-md px-2.5 py-1 rounded-md border border-border-muted text-[11px] font-label-caps text-on-surface-variant w-fit">
 <span class="w-2 h-2 rounded-full bg-blue-500 shrink-0" id="badge-color-dot"></span>
@@ -204,22 +244,30 @@
 </div>
 </div>
 <!-- Court Image Container -->
-<div class="relative w-full h-full max-h-[460px] sm:max-h-[560px] flex items-center justify-center p-2 z-10">
-<!-- Standard High-Resolution Image for instant indexing & crystal clear visibility -->
-<img alt="Cancha Padelar Oficial" class="w-full h-auto max-h-[440px] sm:max-h-[520px] object-contain layer-transition turf-filter-azul drop-shadow-[0_15px_30px_rgba(0,0,0,0.85)]" decoding="async" id="main-court-image" loading="eager" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsYzMOPjnse65ixnRuQVXr5Eo4tBWZGlY_Q6UgQ7bnkyUgAQpy8VR5VUHdP2I3Az1eKCxJBN8mvA6m7PmZOZQArK5PVQp1JTXQ9_VUfd_LUjxjHE5WmdnnzOKPNRduUoiUQEJfcLam7SKJCF554lWX_nX7nCULon82QWRbPTx45EBjWiCCfsXAceRmeS_X2Cle9gxirIhjFo4wIOZgBEet9MjFKYbZFdkDlr8CcLu_zt1txxe7Dhq18C0ryNzrXVjckKSKvkfjg"/>
+<div class="court-stage relative w-full h-full flex items-center justify-center z-10">
+<div class="court-3d-shell" id="court-3d-shell">
+<div class="court-3d-card" id="court-3d-card">
+<canvas aria-label="Modelo 3D interactivo de la cancha Padelar Classic" id="court-3d-canvas"></canvas>
+<img alt="Cancha Padelar Classic en vista 3D" class="layer-transition" data-render-mode="3d" decoding="async" id="main-court-image" loading="eager" src="classic-court.webp"/>
+<div class="turf-tint" id="turf-tint"></div>
 <!-- Lighting Glow Overlay (Reactive to selected lighting modules) -->
 <div class="absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-20 mix-blend-screen flex items-center justify-center" id="lighting-glow">
 <div class="w-3/4 h-3/4 bg-white/20 blur-[90px] rounded-full"></div>
 </div>
 </div>
+</div>
+<div class="court-reference-label absolute bottom-3 left-3 px-2.5 py-1 rounded-md border border-white/10 text-[9px] sm:text-[10px] font-label-caps uppercase tracking-wider text-white/70" id="render-status">
+                    Classic · modelo 3D 360°
+                </div>
+</div>
 <!-- Interactive Hint -->
 <div class="absolute bottom-3 right-3 z-20 bg-black/70 backdrop-blur-sm px-2.5 py-1 rounded-lg border border-border-muted text-[10px] sm:text-[11px] font-label-caps text-on-surface-variant flex items-center gap-1.5">
-<span class="material-symbols-outlined text-xs text-court-green">check_circle</span>
-<span>Vista Oficial Certificada</span>
+<span class="material-symbols-outlined text-xs text-court-green">3d_rotation</span>
+<span class="hidden sm:inline">Arrastrá para girar · rueda para zoom</span><span class="sm:hidden">Arrastrá para girar</span>
 </div>
 </section>
 <!-- Controls & Customizer Panel -->
-<section class="w-full lg:w-[42%] flex-1 bg-surface-container-low border-t lg:border-t-0 lg:border-l border-border-muted z-20 flex flex-col justify-between">
+<section class="w-full lg:w-[36%] flex-1 bg-surface-container-low border-t lg:border-t-0 lg:border-l border-border-muted z-20 flex flex-col justify-between min-w-0">
 <div>
 <!-- Panel Header Desktop -->
 <div class="hidden lg:block p-6 pb-4 border-b border-border-muted">
@@ -239,7 +287,7 @@
                     </button>
 </div>
 <!-- Content Panels -->
-<div class="p-4 sm:p-6 pb-4 overflow-y-auto max-h-[calc(100vh-290px)] lg:max-h-none">
+<div class="p-4 sm:p-6 pb-32 lg:pb-4 lg:overflow-y-auto lg:max-h-[calc(100dvh-260px)]">
 <!-- TAB 1: MODELO -->
 <div class="tab-content active" id="tab-model">
 <div class="flex items-center justify-between mb-3.5">
@@ -248,8 +296,8 @@
 </div>
 <div class="flex flex-col gap-2.5">
 <!-- Classic -->
-<label class="relative flex items-center p-3.5 min-h-[58px] rounded-xl border border-border-muted bg-surface-container cursor-pointer transition-all hover:bg-surface-bright model-option group">
-<input class="sr-only" data-image="https://lh3.googleusercontent.com/aida/AEtjO1UNuP82tHVedkYm8Y9pPTUEjE9d0KcM-43zMyGn4pD6HaGHm_1QhvqUhFFCgfZgMI7kh0w0HOo9apf1v3t_hwEd2USZn0OWIdQ96mI5nPET56GwkW2e_mDDt_mCOY3dCJnPjWWS_uVH0sKqWrRqdgjLyL8I0gfWLVROXtK5Ncw1-YGP5tSozx-tXuX4j26vZsfphUOZP1Fc83jG5HXm_MwmYx6Yy6bKUxyW13u4Ce3RiyVpMQbIT0V7B_sOdVCJZY_eFI4x3qlQ9A" data-name="Classic" name="model" type="radio" value="Classic"/>
+<label class="relative flex items-center p-3.5 min-h-[58px] rounded-xl border-2 border-court-green bg-surface-variant cursor-pointer transition-all hover:bg-surface-bright model-option group shadow-lg">
+<input checked="" class="sr-only" data-image="classic-court.webp" data-name="Classic" data-render-mode="3d" name="model" type="radio" value="Classic"/>
 <div class="flex-1 flex items-center justify-between">
 <div>
 <div class="font-body-md text-sm sm:text-base font-bold text-white group-hover:text-primary transition-colors flex items-center gap-2">
@@ -258,26 +306,26 @@
 </div>
 <div class="text-xs text-on-surface-variant mt-0.5">Pilar intermedio tradicional, gran resistencia para clubes intensivos.</div>
 </div>
-<span class="material-symbols-outlined text-court-green model-check opacity-0">check_circle</span>
+<span class="material-symbols-outlined text-court-green model-check">check_circle</span>
 </div>
 </label>
-<!-- Classic Elite (DEFAULT) -->
-<label class="relative flex items-center p-3.5 min-h-[58px] rounded-xl border-2 border-court-green bg-surface-variant cursor-pointer transition-all hover:bg-surface-bright model-option group shadow-lg">
-<input checked="" class="sr-only" data-image="https://lh3.googleusercontent.com/aida/AEtjO1VzsYzMOPjnse65ixnRuQVXr5Eo4tBWZGlY_Q6UgQ7bnkyUgAQpy8VR5VUHdP2I3Az1eKCxJBN8mvA6m7PmZOZQArK5PVQp1JTXQ9_VUfd_LUjxjHE5WmdnnzOKPNRduUoiUQEJfcLam7SKJCF554lWX_nX7nCULon82QWRbPTx45EBjWiCCfsXAceRmeS_X2Cle9gxirIhjFo4wIOZgBEet9MjFKYbZFdkDlr8CcLu_zt1txxe7Dhq18C0ryNzrXVjckKSKvkfjg" data-name="Classic Elite" name="model" type="radio" value="Elite"/>
+<!-- Classic Elite -->
+<label class="relative flex items-center p-3.5 min-h-[58px] rounded-xl border border-border-muted bg-surface-container cursor-pointer transition-all hover:bg-surface-bright model-option group">
+<input class="sr-only" data-image="classic-court.webp" data-name="Classic Elite" data-render-mode="3d" name="model" type="radio" value="Elite"/>
 <div class="flex-1 flex items-center justify-between">
 <div>
 <div class="font-body-md text-sm sm:text-base font-bold text-white group-hover:text-primary transition-colors flex items-center gap-2">
                                             Classic Elite
                                             <span class="text-[10px] font-label-caps font-bold text-black bg-court-green px-2 py-0.5 rounded">Recomendada</span>
 </div>
-<div class="text-xs text-on-surface-variant mt-0.5">Visión panorámica optimizada con pilares perimetrales reforzados.</div>
+<div class="text-xs text-on-surface-variant mt-0.5">Perfil integrado de mayor sección y apoyos lumínicos reforzados.</div>
 </div>
-<span class="material-symbols-outlined text-court-green model-check">check_circle</span>
+<span class="material-symbols-outlined text-court-green model-check opacity-0">check_circle</span>
 </div>
 </label>
 <!-- Full 360° -->
 <label class="relative flex items-center p-3.5 min-h-[58px] rounded-xl border border-border-muted bg-surface-container cursor-pointer transition-all hover:bg-surface-bright model-option group">
-<input class="sr-only" data-image="https://lh3.googleusercontent.com/aida/AEtjO1XDo6DjL9nVDnGQE1ikmfb-7RVzqOshnlksd1cG9o6z46f4eMi5m2OXovrKm680CrjV4gAJfmXBbFmfXj-JlY2iGXJt4Yb20MLV95Z3rLdvRwFOPbPeJe5-nDaH9baVfRUGK-YjSEjokIlT-2UwItykDd21TT7gtG6Ezxka8DktCjZYJBCIi4SrdU3STJzc73Wllll1rJMTJSugljCDfSh-AnphVdzd6eOscLtwjmiP6g2U15Ve25Ju4H771A3LZMvgRbaffjzi3Q" data-name="Full 360°" name="model" type="radio" value="360"/>
+<input class="sr-only" data-image="classic-court.webp" data-name="Full 360°" data-render-mode="3d" name="model" type="radio" value="360"/>
 <div class="flex-1 flex items-center justify-between">
 <div>
 <div class="font-body-md text-sm sm:text-base font-bold text-white group-hover:text-primary transition-colors flex items-center gap-2">
@@ -366,7 +414,7 @@
                                             4 Módulos LED
                                             <span class="text-[10px] font-label-caps bg-court-green/20 text-court-green px-1.5 py-0.5 rounded">Estándar Club</span>
 </div>
-<div class="text-[11px] text-on-surface-variant mt-0.5">210W | 35.406 lm | Uso recreativo diurno/nocturno</div>
+<div class="text-[11px] text-on-surface-variant mt-0.5">4 módulos por reflector | Uso recreativo diurno/nocturno</div>
 </div>
 </div>
 <span class="material-symbols-outlined text-court-green lighting-check">check_circle</span>
@@ -381,7 +429,7 @@
                                             6 Módulos LED
                                             <span class="text-[10px] font-label-caps bg-surface-bright text-white px-1.5 py-0.5 rounded">Semi-Pro</span>
 </div>
-<div class="text-[11px] text-on-surface-variant mt-0.5">315W | 53.109 lm | Uniformidad lumínica superior</div>
+<div class="text-[11px] text-on-surface-variant mt-0.5">6 módulos por reflector | Uniformidad lumínica superior</div>
 </div>
 </div>
 <span class="material-symbols-outlined text-court-green lighting-check opacity-0">check_circle</span>
@@ -396,7 +444,7 @@
                                             8 Módulos LED
                                             <span class="text-[10px] font-label-caps bg-court-green text-black font-bold px-1.5 py-0.5 rounded">Torneo / TV</span>
 </div>
-<div class="text-[11px] text-on-surface-variant mt-0.5">420W | 70.812 lm | Homologada para transmisión HD</div>
+<div class="text-[11px] text-on-surface-variant mt-0.5">8 módulos por reflector | Homologada para transmisión HD</div>
 </div>
 </div>
 <span class="material-symbols-outlined text-court-green lighting-check opacity-0">check_circle</span>
@@ -414,7 +462,7 @@
 <!-- WhatsApp Quote CTA in Lima Green -->
 <button class="w-full py-3.5 px-4 min-h-[48px] rounded-xl bg-court-green text-black font-button-text text-base font-extrabold hover:brightness-105 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(198,225,83,0.35)] flex items-center justify-center gap-2 cursor-pointer" id="btn-quote" type="button">
 <span class="material-symbols-outlined text-xl">chat</span>
-                    Solicitar Presupuesto Oficial
+                    Solicitar presupuesto
                 </button>
 </div>
 </section>
@@ -459,8 +507,8 @@
 <script>
     // State
     const state = {
-        model: 'Classic Elite',
-        modelKey: 'Elite',
+        model: 'Classic',
+        modelKey: 'Classic',
         turf: 'Azul Torneo',
         turfFilter: 'turf-filter-azul',
         turfDot: 'bg-blue-500',
@@ -481,9 +529,10 @@
         },
         'Elite': {
             title: 'Padelar Classic Elite - Ficha Técnica',
-            desc: 'El equilibrio óptimo entre robustez tradicional y campo visual ampliado. Con estructura perimetral optimizada para una visión despejada desde cualquier ángulo exterior.',
+            desc: 'La evolución reforzada de la Classic, con perfiles integrados de mayor sección en las esquinas y montantes estructurales en los apoyos lumínicos.',
             features: [
-                'Pilares perimetrales reforzados que despejan la visual del juego.',
+                'Pilares compactos reforzados de gran sección en las cuatro esquinas.',
+                'Cuatro montantes laterales alineados con los postes de iluminación.',
                 'Cristal templado premium de 12mm con cantos pulidos y absorción sísmica.',
                 'Césped monofilamento texturado de 12mm de alta densidad 55.000 puntadas/m2.',
                 'Brazos de luminarias curvados aerodinámicos con cero deslumbramiento aéreo.'
@@ -508,6 +557,26 @@
     const badgeColorDot = document.getElementById('badge-color-dot');
     const badgeLightingText = document.getElementById('badge-lighting-text');
     const lightingGlow = document.getElementById('lighting-glow');
+    const renderStatus = document.getElementById('render-status');
+    const court3dShell = document.getElementById('court-3d-shell');
+    const court3dCard = document.getElementById('court-3d-card');
+    const turfTint = document.getElementById('turf-tint');
+
+    const turfVisuals = {
+        'Azul Torneo': { color: '#2536cc', opacity: 0, blend: 'hue' },
+        'Verde Master': { color: '#16834d', opacity: 0.92, blend: 'hue' },
+        'Terracota': { color: '#b34e2e', opacity: 0.92, blend: 'hue' },
+        'Negro Eclipse': { color: '#232323', opacity: 0.82, blend: 'multiply' }
+    };
+
+    function applyTurfVisual() {
+        const visual = turfVisuals[state.turf] || turfVisuals['Azul Torneo'];
+        const isFallbackRender = mainCourtImage.dataset.renderMode !== 'reference';
+        turfTint.style.backgroundColor = visual.color;
+        turfTint.style.mixBlendMode = visual.blend;
+        turfTint.style.opacity = isFallbackRender ? visual.opacity : 0;
+        window.padelar3d?.setTurfColor(state.turf);
+    }
 
     // Tab switching
     const tabBtns = document.querySelectorAll('.config-tab-btn');
@@ -534,9 +603,11 @@
             const val = e.target.value;
             const name = e.target.dataset.name;
             const imgSrc = e.target.dataset.image;
+            const renderMode = e.target.dataset.renderMode || 'reference';
 
             state.modelKey = val;
             state.model = name;
+            window.padelar3d?.setModel(val);
 
             // UI feedback
             document.querySelectorAll('.model-option').forEach(opt => {
@@ -554,12 +625,20 @@
 
             // Instant image update
             mainCourtImage.style.opacity = '0.5';
+            mainCourtImage.dataset.renderMode = renderMode;
+            mainCourtImage.alt = `Cancha Padelar ${name}`;
+            court3dCard.classList.toggle('reference-mode', renderMode === 'reference');
+            window.padelar3d?.setVisible(renderMode === '3d');
             mainCourtImage.src = imgSrc;
             mainCourtImage.onload = () => {
                 mainCourtImage.style.opacity = '1';
+                applyTurfVisual();
             };
 
             badgeModelText.textContent = name;
+            renderStatus.textContent = renderMode === '3d'
+                ? `${name} · modelo 3D 360°`
+                : `${name} · vista referencial temporal`;
         });
     });
 
@@ -593,10 +672,9 @@
             state.turfFilter = card.dataset.filter;
             state.turfDot = card.dataset.dot;
 
-            // Remove existing turf filter classes and add selected
-            mainCourtImage.className = mainCourtImage.className
-                .replace(/turf-filter-[a-z0-9-]+/g, '')
-                .trim() + ' ' + state.turfFilter;
+            // Tint layer clipped to the playing surface, preserving structure,
+            // glass, fencing, white lines and lighting fixtures.
+            applyTurfVisual();
 
             badgeColorText.textContent = state.turf;
             badgeColorDot.className = `w-2 h-2 rounded-full ${state.turfDot} shrink-0`;
@@ -628,6 +706,7 @@
             // Adjust subtle glow
             const opacity = state.lightingModules === 4 ? '0.2' : (state.lightingModules === 6 ? '0.4' : '0.65');
             lightingGlow.style.opacity = opacity;
+            window.padelar3d?.setLightingModules(state.lightingModules);
         });
     });
 
@@ -639,9 +718,14 @@
 
     function openModal() {
         const data = modalData[state.modelKey] || modalData['Elite'];
-        modalTitle.textContent = data.title;
-        modalDesc.textContent = data.desc;
-        modalFeatures.innerHTML = data.features.map(feat => `
+        modalTitle.textContent = 'Ficha técnica de tu configuración';
+        modalDesc.textContent = `${state.model} con césped ${state.turf.toLowerCase()} e iluminación de ${state.lightingModules} módulos LED. ${data.desc}`;
+        const completeFeatures = [
+            ...data.features,
+            `Césped seleccionado: ${state.turf}, monofilamento texturado de 12mm.`,
+            `Iluminación seleccionada: ${state.lighting}.`
+        ];
+        modalFeatures.innerHTML = completeFeatures.map(feat => `
             <li class="flex items-center gap-2">
                 <span class="material-symbols-outlined text-sm text-court-green shrink-0">check</span>
                 <span>${feat}</span>
@@ -670,5 +754,9 @@
         const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
         window.open(url, '_blank');
     });
+
 </script>
+<script src="./three.min.js"></script>
+<script src="./OrbitControls.global.js"></script>
+<script src="./court-3d.js?v=20261005-final-light-post"></script>
 </body></html>
