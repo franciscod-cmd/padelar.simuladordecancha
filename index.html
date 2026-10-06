@@ -116,19 +116,13 @@
         .modal-content { transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
         .modal-overlay.open .modal-content { transform: translateY(0); }
 
-        /* Turf dynamic color shifts applied directly to realistic renders */
-        .turf-filter-azul {
-            filter: hue-rotate(0deg) saturate(1.15) brightness(1.02);
-        }
-        .turf-filter-verde {
-            filter: hue-rotate(240deg) saturate(1.5) brightness(1.08);
-        }
-        .turf-filter-terracota {
-            filter: hue-rotate(155deg) saturate(1.4) brightness(0.95);
-        }
-        .turf-filter-negro {
-            filter: grayscale(0.95) brightness(0.68) contrast(1.22);
-        }
+        /* Fallback tint classes for the exact turf palette. */
+        .turf-filter-verde { filter: hue-rotate(225deg) saturate(1.25) brightness(0.95); }
+        .turf-filter-rosa { filter: hue-rotate(105deg) saturate(1.35) brightness(1.08); }
+        .turf-filter-rojo { filter: hue-rotate(145deg) saturate(1.65) brightness(1.02); }
+        .turf-filter-grafito { filter: grayscale(0.95) brightness(0.62) contrast(1.15); }
+        .turf-filter-gris-claro { filter: grayscale(0.95) brightness(1.32) contrast(0.78); }
+        .turf-filter-azul { filter: hue-rotate(0deg) saturate(1.15) brightness(1.02); }
         .court-stage { isolation: isolate; }
         .court-stage::after {
             content: "";
@@ -238,7 +232,7 @@
 </div>
 <div class="inline-flex items-center gap-1.5 bg-surface-container/90 backdrop-blur-md px-2.5 py-1 rounded-md border border-border-muted text-[11px] font-label-caps text-on-surface-variant w-fit">
 <span class="w-2 h-2 rounded-full bg-blue-500 shrink-0" id="badge-color-dot"></span>
-<span id="badge-color-text">Azul Torneo</span>
+<span id="badge-color-text">Azul</span>
 <span class="text-white/30">|</span>
 <span id="badge-lighting-text">4 Módulos</span>
 </div>
@@ -273,16 +267,27 @@
 <div class="hidden lg:block p-6 pb-4 border-b border-border-muted">
 <h2 class="font-headline-lg text-2xl font-extrabold text-white tracking-tight">Personaliza tu Cancha</h2>
 <p class="font-body-md text-xs sm:text-sm text-on-surface-variant mt-0.5">Configura modelo estructural, superficie deportiva y proyecto lumínico LED.</p>
+<p class="mt-2 flex items-start gap-1.5 text-[10px] leading-relaxed text-on-surface-variant/75">
+<span class="material-symbols-outlined text-[13px] text-court-green shrink-0 mt-px">info</span>
+<span>Visualización orientativa: los colores, proporciones y terminaciones pueden presentar variaciones respecto del producto final.</span>
+</p>
+</div>
+<div class="lg:hidden px-4 py-2.5 bg-surface-container border-b border-border-muted flex items-start gap-1.5 text-[9px] leading-relaxed text-on-surface-variant/75">
+<span class="material-symbols-outlined text-xs text-court-green shrink-0">info</span>
+<span>Visualización orientativa; colores, proporciones y terminaciones pueden variar respecto del producto final.</span>
 </div>
 <!-- Tabs Navigation -->
-<div class="flex border-b border-border-muted bg-surface-container-lowest sticky top-16 lg:top-0 z-30">
-<button class="flex-1 py-3.5 sm:py-4 px-2 min-h-[48px] text-center font-label-caps text-xs sm:text-sm tracking-wider border-b-2 transition-all config-tab-btn text-primary border-primary font-bold" data-target="tab-model">
+<div class="grid grid-cols-2 sm:flex overflow-hidden border-b border-border-muted bg-surface-container-lowest sticky top-16 lg:top-0 z-30">
+<button class="flex-1 min-w-0 py-3.5 sm:py-4 px-2 min-h-[48px] text-center font-label-caps text-[10px] sm:text-xs tracking-wider border-b-2 transition-all config-tab-btn text-primary border-primary font-bold" data-target="tab-model">
                         MODELO
                     </button>
-<button class="flex-1 py-3.5 sm:py-4 px-2 min-h-[48px] text-center font-label-caps text-xs sm:text-sm tracking-wider hover:text-primary transition-all config-tab-btn text-on-surface-variant border-transparent font-bold" data-target="tab-surface">
+<button class="flex-1 min-w-0 py-3.5 sm:py-4 px-2 min-h-[48px] text-center font-label-caps text-[10px] sm:text-xs tracking-wider hover:text-primary transition-all config-tab-btn text-on-surface-variant border-transparent font-bold" data-target="tab-surface">
                         CÉSPED
                     </button>
-<button class="flex-1 py-3.5 sm:py-4 px-2 min-h-[48px] text-center font-label-caps text-xs sm:text-sm tracking-wider hover:text-primary transition-all config-tab-btn text-on-surface-variant border-transparent font-bold" data-target="tab-lighting">
+<button class="flex-1 min-w-0 py-3.5 sm:py-4 px-2 min-h-[48px] text-center font-label-caps text-[10px] sm:text-xs tracking-wider hover:text-primary transition-all config-tab-btn text-on-surface-variant border-transparent font-bold" data-target="tab-structure">
+                        ESTRUCTURA
+                    </button>
+<button class="flex-1 min-w-0 py-3.5 sm:py-4 px-2 min-h-[48px] text-center font-label-caps text-[10px] sm:text-xs tracking-wider hover:text-primary transition-all config-tab-btn text-on-surface-variant border-transparent font-bold" data-target="tab-lighting">
                         ILUMINACIÓN
                     </button>
 </div>
@@ -352,44 +357,64 @@
 <span class="text-[10px] font-label-caps text-on-surface-variant">12mm Texturado</span>
 </div>
 <div class="grid grid-cols-2 gap-2.5 mb-4">
-<!-- Azul Torneo -->
-<button class="flex items-center gap-3 p-3 rounded-xl border-2 border-court-green bg-surface-variant color-card transition-all cursor-pointer text-left" data-color="Azul Torneo" data-dot="bg-blue-500" data-filter="turf-filter-azul" type="button">
+<!-- Verde -->
+<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright color-card transition-all cursor-pointer text-left" data-color="Verde" data-dot="bg-green-500" data-filter="turf-filter-verde" type="button">
+<span class="w-8 h-8 rounded-full bg-green-600 ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs color-check opacity-0">check</span>
+</span>
+<div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Verde</div>
+<div class="text-[10px] text-on-surface-variant">Color de la marca</div>
+</div>
+</button>
+<!-- Rosa -->
+<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright color-card transition-all cursor-pointer text-left" data-color="Rosa" data-dot="bg-pink-500" data-filter="turf-filter-rosa" type="button">
+<span class="w-8 h-8 rounded-full bg-pink-500 ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs color-check opacity-0">check</span>
+</span>
+<div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Rosa</div>
+<div class="text-[10px] text-on-surface-variant">Edición especial</div>
+</div>
+</button>
+<!-- Rojo -->
+<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright color-card transition-all cursor-pointer text-left" data-color="Rojo" data-dot="bg-red-500" data-filter="turf-filter-rojo" type="button">
+<span class="w-8 h-8 rounded-full bg-red-600 ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs color-check opacity-0">check</span>
+</span>
+<div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Rojo</div>
+<div class="text-[10px] text-on-surface-variant">Rojo puro brillante</div>
+</div>
+</button>
+<!-- Gris Grafito -->
+<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright color-card transition-all cursor-pointer text-left" data-color="Gris Grafito" data-dot="bg-zinc-700" data-filter="turf-filter-grafito" type="button">
+<span class="w-8 h-8 rounded-full bg-zinc-700 ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs color-check opacity-0">check</span>
+</span>
+<div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Gris Grafito</div>
+<div class="text-[10px] text-on-surface-variant">Oscuro técnico</div>
+</div>
+</button>
+<!-- Gris Claro -->
+<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright color-card transition-all cursor-pointer text-left" data-color="Gris Claro" data-dot="bg-zinc-400" data-filter="turf-filter-gris-claro" type="button">
+<span class="w-8 h-8 rounded-full bg-zinc-400 ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs color-check opacity-0">check</span>
+</span>
+<div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Gris Claro</div>
+<div class="text-[10px] text-on-surface-variant">Luminoso neutro</div>
+</div>
+</button>
+<!-- Azul (DEFAULT) -->
+<button class="flex items-center gap-3 p-3 rounded-xl border-2 border-court-green bg-surface-variant color-card transition-all cursor-pointer text-left" data-color="Azul" data-dot="bg-blue-500" data-filter="turf-filter-azul" type="button">
 <span class="w-8 h-8 rounded-full bg-blue-600 ring-2 ring-court-green flex items-center justify-center shrink-0 shadow-inner">
 <span class="material-symbols-outlined text-white text-xs color-check">check</span>
 </span>
 <div>
-<div class="font-body-md text-xs sm:text-sm font-bold text-white">Azul Torneo</div>
-<div class="text-[10px] text-on-surface-variant">Oficial World Tour</div>
-</div>
-</button>
-<!-- Verde Master -->
-<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright color-card transition-all cursor-pointer text-left" data-color="Verde Master" data-dot="bg-green-500" data-filter="turf-filter-verde" type="button">
-<span class="w-8 h-8 rounded-full bg-emerald-600 ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
-<span class="material-symbols-outlined text-white text-xs color-check opacity-0">check</span>
-</span>
-<div>
-<div class="font-body-md text-xs sm:text-sm font-bold text-white">Verde Master</div>
-<div class="text-[10px] text-on-surface-variant">Clásico &amp; Club</div>
-</div>
-</button>
-<!-- Terracota -->
-<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright color-card transition-all cursor-pointer text-left" data-color="Terracota" data-dot="bg-amber-700" data-filter="turf-filter-terracota" type="button">
-<span class="w-8 h-8 rounded-full bg-red-700 ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
-<span class="material-symbols-outlined text-white text-xs color-check opacity-0">check</span>
-</span>
-<div>
-<div class="font-body-md text-xs sm:text-sm font-bold text-white">Terracota</div>
-<div class="text-[10px] text-on-surface-variant">Look Tierra Batida</div>
-</div>
-</button>
-<!-- Negro Eclipse -->
-<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright color-card transition-all cursor-pointer text-left" data-color="Negro Eclipse" data-dot="bg-zinc-700" data-filter="turf-filter-negro" type="button">
-<span class="w-8 h-8 rounded-full bg-zinc-900 border border-outline ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
-<span class="material-symbols-outlined text-white text-xs color-check opacity-0">check</span>
-</span>
-<div>
-<div class="font-body-md text-xs sm:text-sm font-bold text-white">Negro Eclipse</div>
-<div class="text-[10px] text-on-surface-variant">Edición Premium Dark</div>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Azul</div>
+<div class="text-[10px] text-on-surface-variant">Competición</div>
 </div>
 </button>
 </div>
@@ -397,7 +422,49 @@
 <span class="font-bold text-white">Fibras monofilamento texturadas:</span> Alta resistencia al desgaste y menor deslizamiento indeseado con arena de sílice calibrada 0.2-0.6mm.
                         </div>
 </div>
-<!-- TAB 3: ILUMINACIÓN -->
+<!-- TAB 3: ESTRUCTURA -->
+<div class="tab-content" id="tab-structure">
+<div class="flex items-center justify-between mb-3.5">
+<span class="font-label-caps text-xs uppercase tracking-wider text-on-surface-variant font-bold">Color de postes metálicos</span>
+<span class="text-[10px] font-label-caps text-court-green">Vidrios y mallas intactos</span>
+</div>
+<div class="grid grid-cols-2 gap-2.5 mb-4">
+<button class="flex items-center gap-3 p-3 rounded-xl border-2 border-court-green bg-surface-variant structure-color-card transition-all cursor-pointer text-left" data-structure-color="Verde" type="button">
+<span class="w-8 h-8 rounded-full bg-[#7dff37] ring-2 ring-court-green flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-black text-xs structure-color-check">check</span>
+</span>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Verde</div>
+</button>
+<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright structure-color-card transition-all cursor-pointer text-left" data-structure-color="Negro" type="button">
+<span class="w-8 h-8 rounded-full bg-[#111315] border border-outline ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs structure-color-check opacity-0">check</span>
+</span>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Negro</div>
+</button>
+<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright structure-color-card transition-all cursor-pointer text-left" data-structure-color="Gris" type="button">
+<span class="w-8 h-8 rounded-full bg-[#737980] ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs structure-color-check opacity-0">check</span>
+</span>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Gris</div>
+</button>
+<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright structure-color-card transition-all cursor-pointer text-left" data-structure-color="Azul Marino" type="button">
+<span class="w-8 h-8 rounded-full bg-[#102a4c] ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs structure-color-check opacity-0">check</span>
+</span>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Azul Marino</div>
+</button>
+<button class="flex items-center gap-3 p-3 rounded-xl border border-border-muted bg-surface-container hover:bg-surface-bright structure-color-card transition-all cursor-pointer text-left" data-structure-color="Rojo" type="button">
+<span class="w-8 h-8 rounded-full bg-red-600 ring-2 ring-transparent flex items-center justify-center shrink-0 shadow-inner">
+<span class="material-symbols-outlined text-white text-xs structure-color-check opacity-0">check</span>
+</span>
+<div class="font-body-md text-xs sm:text-sm font-bold text-white">Rojo</div>
+</button>
+</div>
+<div class="p-3 rounded-xl bg-surface-container border border-border-muted text-xs text-on-surface-variant">
+<span class="font-bold text-white">Pintura de estructura:</span> el color se aplica exclusivamente a la perfilería metálica originalmente verde. Los vidrios y las mallas conservan sus materiales.
+</div>
+</div>
+<!-- TAB 4: ILUMINACIÓN -->
 <div class="tab-content" id="tab-lighting">
 <div class="flex items-center justify-between mb-3.5">
 <span class="font-label-caps text-xs uppercase tracking-wider text-on-surface-variant font-bold">Proyectores LED Homologados</span>
@@ -509,9 +576,10 @@
     const state = {
         model: 'Classic',
         modelKey: 'Classic',
-        turf: 'Azul Torneo',
+        turf: 'Azul',
         turfFilter: 'turf-filter-azul',
         turfDot: 'bg-blue-500',
+        structureColor: 'Verde',
         lighting: '4 Módulos (210W)',
         lightingModules: 4
     };
@@ -563,14 +631,16 @@
     const turfTint = document.getElementById('turf-tint');
 
     const turfVisuals = {
-        'Azul Torneo': { color: '#2536cc', opacity: 0, blend: 'hue' },
-        'Verde Master': { color: '#16834d', opacity: 0.92, blend: 'hue' },
-        'Terracota': { color: '#b34e2e', opacity: 0.92, blend: 'hue' },
-        'Negro Eclipse': { color: '#232323', opacity: 0.82, blend: 'multiply' }
+        'Verde': { color: '#168447', opacity: 0.92, blend: 'hue' },
+        'Rosa': { color: '#ef4f91', opacity: 0.92, blend: 'hue' },
+        'Rojo': { color: '#ff1010', opacity: 0.94, blend: 'hue' },
+        'Gris Grafito': { color: '#34383d', opacity: 0.88, blend: 'color' },
+        'Gris Claro': { color: '#aeb5bc', opacity: 0.82, blend: 'color' },
+        'Azul': { color: '#163ec7', opacity: 0.92, blend: 'hue' }
     };
 
     function applyTurfVisual() {
-        const visual = turfVisuals[state.turf] || turfVisuals['Azul Torneo'];
+        const visual = turfVisuals[state.turf] || turfVisuals['Azul'];
         const isFallbackRender = mainCourtImage.dataset.renderMode !== 'reference';
         turfTint.style.backgroundColor = visual.color;
         turfTint.style.mixBlendMode = visual.blend;
@@ -681,6 +751,35 @@
         });
     });
 
+    // Structure color selection: only the original green metal material is updated.
+    const structureColorCards = document.querySelectorAll('.structure-color-card');
+    structureColorCards.forEach(card => {
+        card.addEventListener('click', () => {
+            structureColorCards.forEach(c => {
+                c.classList.remove('border-2', 'border-court-green', 'bg-surface-variant', 'shadow-lg');
+                c.classList.add('border-border-muted', 'bg-surface-container');
+                const ring = c.querySelector('span');
+                if (ring) {
+                    ring.classList.remove('ring-court-green');
+                    ring.classList.add('ring-transparent');
+                }
+                c.querySelector('.structure-color-check')?.classList.add('opacity-0');
+            });
+
+            card.classList.remove('border-border-muted', 'bg-surface-container');
+            card.classList.add('border-2', 'border-court-green', 'bg-surface-variant', 'shadow-lg');
+            const ring = card.querySelector('span');
+            if (ring) {
+                ring.classList.remove('ring-transparent');
+                ring.classList.add('ring-court-green');
+            }
+            card.querySelector('.structure-color-check')?.classList.remove('opacity-0');
+
+            state.structureColor = card.dataset.structureColor;
+            window.padelar3d?.setStructureColor(state.structureColor);
+        });
+    });
+
     // Lighting selection
     const lightingRadios = document.querySelectorAll('input[name="lighting"]');
     lightingRadios.forEach(radio => {
@@ -719,10 +818,11 @@
     function openModal() {
         const data = modalData[state.modelKey] || modalData['Elite'];
         modalTitle.textContent = 'Ficha técnica de tu configuración';
-        modalDesc.textContent = `${state.model} con césped ${state.turf.toLowerCase()} e iluminación de ${state.lightingModules} módulos LED. ${data.desc}`;
+        modalDesc.textContent = `${state.model} con césped ${state.turf.toLowerCase()}, estructura ${state.structureColor.toLowerCase()} e iluminación de ${state.lightingModules} módulos LED. ${data.desc}`;
         const completeFeatures = [
             ...data.features,
             `Césped seleccionado: ${state.turf}, monofilamento texturado de 12mm.`,
+            `Color de estructura metálica: ${state.structureColor}.`,
             `Iluminación seleccionada: ${state.lighting}.`
         ];
         modalFeatures.innerHTML = completeFeatures.map(feat => `
@@ -749,6 +849,7 @@
         const message = `Hola Padelar, quisiera solicitar un presupuesto oficial para una cancha con la siguiente configuración:\n\n` +
                         `• Modelo: ${state.model}\n` +
                         `• Césped: ${state.turf} (12mm Monofilamento Texturado)\n` +
+                        `• Estructura metálica: ${state.structureColor}\n` +
                         `• Iluminación: ${state.lighting}\n\n` +
                         `Agradezco me puedan contactar con cotización y plazos de entrega.`;
         const url = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
@@ -758,5 +859,5 @@
 </script>
 <script src="./three.min.js"></script>
 <script src="./OrbitControls.global.js"></script>
-<script src="./court-3d.js?v=20261005-final-light-post"></script>
+<script src="./court-3d.js?v=20261006-lineas-reglamentarias-695"></script>
 </body></html>

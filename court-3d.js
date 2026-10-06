@@ -120,16 +120,17 @@ function addFencePanel({ width, height, position, rotationY = 0, columns = 10, r
   return group;
 }
 
-// Playing surface and white court markings.
+// Continuous playing surface and regulation interior court markings.
 addBox([10, 0.12, 20], [0, 0, 0], turfMaterial, court, false);
 const lineY = 0.075;
-addBox([0.055, 0.012, 19.4], [-4.72, lineY, 0], white, court, false);
-addBox([0.055, 0.012, 19.4], [4.72, lineY, 0], white, court, false);
-addBox([9.5, 0.012, 0.055], [0, lineY, -9.68], white, court, false);
-addBox([9.5, 0.012, 0.055], [0, lineY, 9.68], white, court, false);
-addBox([9.5, 0.012, 0.05], [0, lineY, -3], white, court, false);
-addBox([9.5, 0.012, 0.05], [0, lineY, 3], white, court, false);
-addBox([0.05, 0.012, 6], [0, lineY, 0], white, court, false);
+const lineWidth = 0.05;
+// Regulation service lines: 6.95 metres from the net on each half.
+const serviceLineDistance = 6.95;
+addBox([9.9, 0.012, lineWidth], [0, lineY, -serviceLineDistance], white, court, false);
+addBox([9.9, 0.012, lineWidth], [0, lineY, serviceLineDistance], white, court, false);
+// Centre service line: two exact segments, from the net to each service line.
+addBox([lineWidth, 0.012, serviceLineDistance], [0, lineY, -serviceLineDistance / 2], white, court, false);
+addBox([lineWidth, 0.012, serviceLineDistance], [0, lineY, serviceLineDistance / 2], white, court, false);
 
 // Perimeter base and signature lime structural frame.
 for (const z of [-10.05, 10.05]) addBox([10.25, 0.16, 0.15], [0, 0.08, z], darkMetal);
@@ -306,15 +307,31 @@ shadowPlane.receiveShadow = true;
 scene.add(shadowPlane);
 
 const turfColors = {
-  'Azul Torneo': 0x1007b8,
-  'Verde Master': 0x004d22,
-  Terracota: 0x65180c,
-  'Negro Eclipse': 0x17191d
+  Verde: 0x168447,
+  Rosa: 0xef4f91,
+  Rojo: 0xff1010,
+  'Gris Grafito': 0x34383d,
+  'Gris Claro': 0xaeb5bc,
+  Azul: 0x163ec7
+};
+
+const structureColors = {
+  Verde: 0x7dff37,
+  Negro: 0x111315,
+  Gris: 0x737980,
+  'Azul Marino': 0x102a4c,
+  Rojo: 0xff1010
 };
 
 function setTurfColor(name) {
-  turfMaterial.color.setHex(turfColors[name] ?? turfColors['Azul Torneo']);
+  turfMaterial.color.setHex(turfColors[name] ?? turfColors.Azul).convertSRGBToLinear();
   turfMaterial.needsUpdate = true;
+}
+
+function setStructureColor(name) {
+  // Only the original lime-painted metal changes. Glass and mesh materials stay untouched.
+  lime.color.setHex(structureColors[name] ?? structureColors.Verde).convertSRGBToLinear();
+  lime.needsUpdate = true;
 }
 
 function setVisible(visible) {
@@ -364,8 +381,9 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-window.padelar3d = { setTurfColor, setLightingModules, setVisible, setModel, resetView };
+window.padelar3d = { setTurfColor, setStructureColor, setLightingModules, setVisible, setModel, resetView };
 card.classList.add('webgl-ready');
 setModel(document.querySelector('input[name="model"]:checked')?.value || 'Classic');
-setTurfColor(document.getElementById('badge-color-text')?.textContent || 'Azul Torneo');
+setTurfColor(document.getElementById('badge-color-text')?.textContent || 'Azul');
+setStructureColor('Verde');
 animate();
